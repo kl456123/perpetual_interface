@@ -1,0 +1,127 @@
+import {
+  HStack,
+  Tag,
+  VStack,
+  TableContainer,
+  Box,
+  Text,
+  Spinner,
+} from "@chakra-ui/react";
+import { addTradeRecords } from "../../state/tradesHistorySlice";
+import useWebSocket from "react-use-websocket";
+import { useEffect } from "react";
+import { formatNumber } from "../../utils/utils";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
+import { selectTrades, TradeRecord } from "../../state/tradesHistorySlice";
+
+interface TradeRecordRowProps {
+  amount: string;
+  price: string;
+  time: string;
+}
+const WSS_FEED_URL: string = "ws://localhost:3000/orderbook/v1";
+export const NUM_TRADESRECORD: number = 0; // rows count
+
+function TradeRecordRow({ amount, price, time }: TradeRecordRowProps) {
+  return (
+    <HStack>
+      <Text>{amount}</Text>
+      <Text>{price}</Text>
+      <Text>{time}</Text>
+    </HStack>
+  );
+}
+
+let currentTrades: TradeRecord[] = [];
+
+export default function TradesHistory() {
+  const tradesHistory = useAppSelector(selectTrades);
+  const dispatch = useAppDispatch();
+
+  const { sendJsonMessage, getWebSocket } = useWebSocket(WSS_FEED_URL, {
+    onOpen: () => console.log("WebSocket connection opened."),
+    onClose: () => console.log("WebSocket connection closed."),
+    shouldReconnect: (closeEvent: any) => true,
+    onMessage: (event: WebSocketEventMap["message"]) => processMessages(event),
+  });
+
+  const processMessages = (event: { data: string }) => {
+    const response = JSON.parse(event.data);
+
+    process(response.payload);
+  };
+
+  useEffect(() => {
+    function connect(product: string) {
+      const subscribeMessage = {
+        type: "subscribe",
+        channel: "trades",
+        requestId: "321",
+      };
+      sendJsonMessage(subscribeMessage);
+    }
+
+    connect("PBTC-USD");
+  }, [sendJsonMessage]);
+
+  const process = (data: TradeRecord[]) => {
+    if (data?.length > 0) {
+      currentTrades = [...currentTrades, ...data];
+
+      if (currentTrades.length > NUM_TRADESRECORD) {
+        dispatch(addTradeRecords(currentTrades));
+        currentTrades = [];
+        currentTrades.length = 0;
+      }
+    }
+  };
+
+  const formatPrice = (arg: number): string => {
+    return arg.toLocaleString("en", {
+      useGrouping: true,
+      minimumFractionDigits: 2,
+    });
+  };
+  const buildPriceLevels = (trades: TradeRecord[]): React.ReactNode => {
+    const sortedLevelsByPrice: TradeRecord[] = [...trades].sort(
+      (current: TradeRecord, next: TradeRecord) => {
+        return next.timestamp - current.timestamp;
+      }
+    );
+
+    return sortedLevelsByPrice.map((trade, idx) => {
+      const size: string = formatNumber(trade.amount);
+      const price: string = formatPrice(trade.price);
+
+      return (
+        <Box key={idx}>
+          <TradeRecordRow
+            amount={size}
+            price={price}
+            time={trade.timestamp.toString()}
+          />
+        </Box>
+      );
+    });
+  };
+  return (
+    <VStack>
+      <HStack>
+        <Text>
+          Size<Tag>ETH</Tag>
+        </Text>
+        <Text>
+          Price<Tag>USD</Tag>
+        </Text>
+        <Text>Time</Text>
+      </HStack>
+      {tradesHistory.length ? (
+        <TableContainer>
+          <div>{buildPriceLevels(tradesHistory)}</div>
+        </TableContainer>
+      ) : (
+        <Spinner />
+      )}
+    </VStack>
+  );
+}
