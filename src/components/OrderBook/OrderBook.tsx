@@ -39,14 +39,16 @@ interface DeltaOrders {
   asks: ApiOrder[];
 }
 
-function TitleRow() {}
 
 export enum OrderType {
   BIDS,
   ASKS,
 }
 
-const WSS_FEED_URL: string = "ws://localhost:3000/orderbook/v1";
+const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
+const SERVER_HOST = process.env.REACT_APP_SERVER_HOST;
+
+const WSS_FEED_URL: string = `ws://${SERVER_HOST}:${SERVER_PORT}/orderbook/v1`;
 export const ORDERBOOK_LEVELS: number = 0; // rows count
 
 let currentBids: ApiOrder[] = [];

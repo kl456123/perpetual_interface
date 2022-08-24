@@ -147,7 +147,9 @@ export default function LimitOrder() {
   const [orderArgs, setOrderArgs] = useState({ price: "0", size: "0" });
   const [isBuy, setBuy] = useState(false);
   const placeOrder = async () => {
-    const baseUrl = `http://localhost:3000`;
+    const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
+    const SERVER_HOST = process.env.REACT_APP_SERVER_HOST;
+    const baseUrl = `http://${SERVER_HOST}:${SERVER_PORT}`;
     const url = `${baseUrl}/orderbook/v1/order`;
 
     const orderData = await createOrder(

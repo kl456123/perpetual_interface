@@ -19,7 +19,11 @@ interface TradeRecordRowProps {
   price: string;
   time: string;
 }
-const WSS_FEED_URL: string = "ws://localhost:3000/orderbook/v1";
+
+const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
+const SERVER_HOST = process.env.REACT_APP_SERVER_HOST;
+
+const WSS_FEED_URL: string = `ws://${SERVER_HOST}:${SERVER_PORT}/orderbook/v1`;
 export const NUM_TRADESRECORD: number = 0; // rows count
 
 function TradeRecordRow({ amount, price, time }: TradeRecordRowProps) {
