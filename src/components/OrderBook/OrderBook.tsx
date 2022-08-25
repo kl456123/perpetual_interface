@@ -39,7 +39,6 @@ interface DeltaOrders {
   asks: ApiOrder[];
 }
 
-
 export enum OrderType {
   BIDS,
   ASKS,

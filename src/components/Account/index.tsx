@@ -28,7 +28,7 @@ export default function Account() {
 
   useEffect(() => {
     const fetchAccountBalance = async () => {
-      const url = `${SERVER_HOST}:${SERVER_PORT}/account/v1/${account}`;
+      const url = `http://${SERVER_HOST}:${SERVER_PORT}/account/v1/${account}`;
       const res = await axios.get(url);
       const market = "PBTC-USDC";
       const balance = res.data.balances[market];
