@@ -1,4 +1,5 @@
 import { VStack, HStack } from "@chakra-ui/react";
+import { useState } from "react";
 
 import OrderBookAndTrades from "./OrderBook";
 import Chart from "./Charts";
@@ -7,8 +8,12 @@ import Account from "./Account";
 import StatsBar from "./StatsBar";
 import MarketLists from "./MarketLists";
 import Order from "./Orders";
+import Deposit from "./Account/Deposit";
+import Withdraw from "./Account/Withdraw";
+import { Mode } from "../utils/types";
 
 export default function MainLayout() {
+  const [mode, setMode] = useState(Mode.Order);
   return (
     <VStack align="stretch" w="100%" h="100%">
       {/*Nav*/}
@@ -20,8 +25,14 @@ export default function MainLayout() {
       {/*Body*/}
       <HStack>
         <VStack w="324px" align="left" h="100%">
-          <Account />
-          <Order />
+          <Account switchMode={setMode} />
+          {mode === Mode.Deposit ? (
+            <Deposit switchMode={setMode} />
+          ) : mode === Mode.Order ? (
+            <Order />
+          ) : (
+            <Withdraw switchMode={setMode} />
+          )}
         </VStack>
         <OrderBookAndTrades />
 

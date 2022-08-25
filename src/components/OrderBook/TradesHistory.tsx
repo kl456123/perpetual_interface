@@ -10,7 +10,10 @@ import {
 import { addTradeRecords } from "../../state/tradesHistorySlice";
 import useWebSocket from "react-use-websocket";
 import { useEffect } from "react";
-import { formatNumber } from "../../utils/utils";
+import {
+  formatNumber,
+  generatePseudoRandom256BitNumber,
+} from "../../utils/utils";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import { selectTrades, TradeRecord } from "../../state/tradesHistorySlice";
 
@@ -57,10 +60,11 @@ export default function TradesHistory() {
 
   useEffect(() => {
     function connect(product: string) {
+      const random = generatePseudoRandom256BitNumber();
       const subscribeMessage = {
         type: "subscribe",
         channel: "trades",
-        requestId: "321",
+        requestId: random.toString(),
       };
       sendJsonMessage(subscribeMessage);
     }

@@ -11,6 +11,12 @@ export interface SignedIntStruct {
   isPositive: boolean;
 }
 
+export enum Mode {
+  Deposit,
+  Withdraw,
+  Order,
+}
+
 export interface BalanceStruct {
   marginIsPositive: boolean;
   positionIsPositive: boolean;

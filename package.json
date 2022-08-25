@@ -36,6 +36,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "fix": "prettier src --write",
+    "compile": "typechain --target ethers-v5 --out-dir src/typechain 'abis/**/*.json'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -55,5 +56,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@typechain/ethers-v5": "^10.1.0",
+    "typechain": "^8.1.0"
   }
 }

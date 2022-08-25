@@ -29,7 +29,10 @@ import {
   selectBids,
 } from "../../state/orderbook/reducer";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
-import { formatNumber } from "../../utils/utils";
+import {
+  formatNumber,
+  generatePseudoRandom256BitNumber,
+} from "../../utils/utils";
 import PriceLevelRow from "./PriceLevelRow";
 import Spread from "./Spread";
 import { ApiOrder } from "../../utils/types";
@@ -95,10 +98,11 @@ export default function OrderBook() {
 
   useEffect(() => {
     function connect(product: string) {
+      const random = generatePseudoRandom256BitNumber();
       const subscribeMessage = {
         type: "subscribe",
         channel: "orders",
-        requestId: "123",
+        requestId: random.toString(),
       };
       sendJsonMessage(subscribeMessage);
     }

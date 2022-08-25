@@ -232,7 +232,7 @@ export function getPrependedHash(
   }
 }
 
-function generatePseudoRandom256BitNumber(): BigNumber {
+export function generatePseudoRandom256BitNumber(): BigNumber {
   const MAX_DIGITS_IN_UNSIGNED_256_INT = 78;
 
   // BigNumber.random returns a pseudo-random number between 0 & 1 with a passed in number of
