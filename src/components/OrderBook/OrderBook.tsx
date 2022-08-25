@@ -102,7 +102,7 @@ export default function OrderBook() {
       const subscribeMessage = {
         type: "subscribe",
         channel: "orders",
-        requestId: random.toString(),
+        requestId: random.toFixed(0),
       };
       sendJsonMessage(subscribeMessage);
     }

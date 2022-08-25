@@ -64,7 +64,7 @@ export default function TradesHistory() {
       const subscribeMessage = {
         type: "subscribe",
         channel: "trades",
-        requestId: random.toString(),
+        requestId: random.toFixed(0),
       };
       sendJsonMessage(subscribeMessage);
     }
