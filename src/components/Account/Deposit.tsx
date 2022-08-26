@@ -39,7 +39,7 @@ export default function Deposit(props: { switchMode: (mode: Mode) => void }) {
         const balance = await mockToken.balanceOf(account);
       if(balance.lt(amount)){
           const residual = BigNumber.from(amount).sub(balance);
-          await axios.post(`http://${SERVER_HOST}:${SERVER_PORT}/account/v1/drop`, { residual, account });
+          await axios.post(`http://${SERVER_HOST}:${SERVER_PORT}/account/v1/drop`, { amount: residual.toString(), account });
       }
 
       // check allowance
