@@ -9,19 +9,60 @@ import {
   Heading,
   InputGroup,
   Input,
+  Button,
   InputRightElement,
 } from "@chakra-ui/react";
+import { useWeb3React } from "@web3-react/core";
+import { useState } from "react";
 import { Mode } from "../../utils/types";
+import axios from "axios";
+import { ethers, BigNumber } from 'ethers';
+import { PerpetualV1__factory, MockToken__factory } from "../../typechain";
+
+const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
+const SERVER_HOST = process.env.REACT_APP_SERVER_HOST;
+const PERPETUAL_PROXY_ADDR = process.env.REACT_APP_PerpetualProxyAddr;
+const MOCKTOKEN_ADDR = process.env.REACT_APP_MockTokenAddr;
 
 export default function Deposit(props: { switchMode: (mode: Mode) => void }) {
+  const { library, account, activate, deactivate, active } = useWeb3React();
+    if(!account){
+        throw new Error(`connect to wallet first`);
+    }
+    const [amount, setAmount] = useState('0');
+
+  const deposit = async (amount: string) => {
+    const iface = PerpetualV1__factory.createInterface();
+      // check balance before deposit, if not enough token,
+      // request airdrop from faucet. only used in test environment
+        const mockToken = MockToken__factory.connect(MOCKTOKEN_ADDR as string, library);
+        const balance = await mockToken.balanceOf(account);
+      if(balance.lt(amount)){
+          const residual = BigNumber.from(amount).sub(balance);
+          await axios.post(`http://${SERVER_HOST}:${SERVER_PORT}/account/v1/drop`, { residual, account });
+      }
+
+      // check allowance
+    const data = iface.encodeFunctionData("deposit", [account, amount]);
+    await library.getSigner().sendTransaction({ to: PERPETUAL_PROXY_ADDR, data });
+  };
+
+    const approve = async ()=>{
+        const iface = MockToken__factory.createInterface();
+        const max = ethers.constants.MaxUint256;
+        const data  = iface.encodeFunctionData('approve', [PERPETUAL_PROXY_ADDR as string, max]);
+        console.log(MOCKTOKEN_ADDR);
+        await library.getSigner().sendTransaction({ to: MOCKTOKEN_ADDR, data });
+    }
   return (
+      <>
     <VStack align="left">
       <HStack>
-        <Heading>Deposit</Heading>
+        <Heading size="lg">Deposit</Heading>
         <Spacer />
         <CloseButton onClick={() => props.switchMode(Mode.Order)}></CloseButton>
       </HStack>
-      <Text>Asset</Text>
+      <Text align="left">Asset</Text>
       <Select defaultValue="option1">
         <option value="option1">
           USD Coin<Tag>USDC</Tag>
@@ -33,13 +74,33 @@ export default function Deposit(props: { switchMode: (mode: Mode) => void }) {
           DAI<Tag>DAI</Tag>
         </option>
       </Select>
-      <Text>Amount</Text>
+      <Text align="left">Amount</Text>
       <InputGroup size="md">
-        <Input pr="4.5rem" placeholder="0.0000" />
+          <Input pr="4.5rem" placeholder="0.0000" onChange={(e)=>setAmount(e.currentTarget.value)}/>
         <InputRightElement width="4.5rem">
-          <Text>MAX</Text>
+          <Button>MAX</Button>
         </InputRightElement>
       </InputGroup>
+      <HStack>
+        <Text>
+          Available<Tag>USDC</Tag>
+        </Text>
+        <Spacer />
+        <Text>0.0000</Text>
+      </HStack>
+      <VStack>
+        <Heading size="md">Enable USDC on dYdX</Heading>
+        <Text>
+          You must enable USDC the first time you deposit on dYdX. You will only
+          have to do this once.
+        </Text>
+        <Button onClick={()=>approve()}>Enable USDC</Button>
+      </VStack>
+      <Button onClick={()=>deposit(amount)}>Confirm deposit</Button>
     </VStack>
+
+    <VStack>
+    </VStack>
+</>
   );
 }

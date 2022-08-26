@@ -10,7 +10,6 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
-import { PerpetualV1__factory } from "../../typechain";
 import { Mode } from "../../utils/types";
 
 const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
@@ -28,7 +27,7 @@ if (typeof PERPETUAL_PROXY_ADDR === "undefined") {
 }
 
 export default function Account(props: { switchMode: (mode: Mode) => void }) {
-  const { library, account, activate, deactivate, active } = useWeb3React();
+  const { account } = useWeb3React();
   const [accountInfo, setAccountInfo] = useState({
     margin: "0",
     position: "0",
@@ -47,11 +46,6 @@ export default function Account(props: { switchMode: (mode: Mode) => void }) {
     }
   }, [account]);
 
-  const deposit = async (account: string, amount: string) => {
-    const iface = PerpetualV1__factory.createInterface();
-    const data = iface.encodeFunctionData("deposit", [account, amount]);
-    await library.sendTransaction({ to: PERPETUAL_PROXY_ADDR, data });
-  };
 
   return (
     <>

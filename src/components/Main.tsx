@@ -11,8 +11,10 @@ import Order from "./Orders";
 import Deposit from "./Account/Deposit";
 import Withdraw from "./Account/Withdraw";
 import { Mode } from "../utils/types";
+import { useWeb3React } from "@web3-react/core";
 
 export default function MainLayout() {
+    const { active } = useWeb3React();
   const [mode, setMode] = useState(Mode.Order);
   return (
     <VStack align="stretch" w="100%" h="100%">
