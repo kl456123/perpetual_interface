@@ -5,15 +5,20 @@ import {
   TableContainer,
   Box,
   Text,
+  Spacer,
   Spinner,
 } from "@chakra-ui/react";
-import { addTradeRecords } from "../../state/tradesHistorySlice";
+import {
+  addTradeRecords,
+  clearTradesHistory,
+} from "../../state/tradesHistorySlice";
 import useWebSocket from "react-use-websocket";
 import { useEffect } from "react";
 import {
   formatNumber,
   generatePseudoRandom256BitNumber,
 } from "../../utils/utils";
+import { NULL_ADDRESS } from "../../constants/misc";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import { selectTrades, TradeRecord } from "../../state/tradesHistorySlice";
 
@@ -33,7 +38,9 @@ function TradeRecordRow({ amount, price, time }: TradeRecordRowProps) {
   return (
     <HStack>
       <Text>{amount}</Text>
+      <Spacer />
       <Text>{price}</Text>
+      <Spacer />
       <Text>{time}</Text>
     </HStack>
   );
@@ -65,12 +72,14 @@ export default function TradesHistory() {
         type: "subscribe",
         channel: "trades",
         requestId: random.toFixed(0),
+        payload: { maker: NULL_ADDRESS },
       };
       sendJsonMessage(subscribeMessage);
     }
+    dispatch(clearTradesHistory());
 
     connect("PBTC-USD");
-  }, [sendJsonMessage]);
+  }, [sendJsonMessage, dispatch]);
 
   const process = (data: TradeRecord[]) => {
     if (data?.length > 0) {
@@ -113,14 +122,16 @@ export default function TradesHistory() {
     });
   };
   return (
-    <VStack>
+    <VStack align="left">
       <HStack>
         <Text>
           Size<Tag>ETH</Tag>
         </Text>
+        <Spacer />
         <Text>
           Price<Tag>USD</Tag>
         </Text>
+        <Spacer />
         <Text>Time</Text>
       </HStack>
       {tradesHistory.length ? (

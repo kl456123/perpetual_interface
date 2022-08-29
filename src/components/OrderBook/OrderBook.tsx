@@ -69,8 +69,20 @@ export default function OrderBook() {
 
   const processMessages = (event: { data: string }) => {
     const response = JSON.parse(event.data);
-    const bids = response.payload.filter((order: any) => order.isBuy);
-    const asks = response.payload.filter((order: any) => !order.isBuy);
+    const bids = response.payload
+      .filter((order: any) => order.order.isBuy)
+      .map((sraOrder: any) => ({
+        price: sraOrder.order.limitPrice.value,
+        size: sraOrder.order.amount - sraOrder.metaData.filledAmount,
+        hash: sraOrder.metaData.orderHash,
+      }));
+    const asks = response.payload
+      .filter((order: any) => !order.order.isBuy)
+      .map((sraOrder: any) => ({
+        price: sraOrder.order.limitPrice.value,
+        size: sraOrder.order.amount - sraOrder.metaData.filledAmount,
+        hash: sraOrder.metaData.orderHash,
+      }));
 
     process({ bids, asks });
   };

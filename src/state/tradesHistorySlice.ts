@@ -4,6 +4,8 @@ import { AppState } from "./index";
 export interface TradeRecord {
   hash: string;
   taker: string;
+  maker: string;
+  isBuy: boolean;
   price: number;
   amount: number;
   timestamp: number;

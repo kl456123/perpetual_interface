@@ -28,7 +28,9 @@ function updateOrders(currentOrders: ApiOrder[], updates: ApiOrder[]) {
         (currentOrder) => currentOrder.hash === update.hash
       );
       if (!updatedOrder) {
-        res.push(update);
+        if (update.size) {
+          res.push(update);
+        }
         return res;
       }
       const newOrders = res.filter((order) => order.hash !== update.hash);

@@ -11,6 +11,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { Mode } from "../../utils/types";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
+import { updatePosition, selectPosition } from "../../state/accountSlice";
 
 const SERVER_PORT = process.env.REACT_APP_SERVER_PORT;
 const SERVER_HOST = process.env.REACT_APP_SERVER_HOST;
@@ -28,10 +30,8 @@ if (typeof PERPETUAL_PROXY_ADDR === "undefined") {
 
 export default function Account(props: { switchMode: (mode: Mode) => void }) {
   const { account } = useWeb3React();
-  const [accountInfo, setAccountInfo] = useState({
-    margin: "0",
-    position: "0",
-  });
+  const dispatch = useAppDispatch();
+  const accountInfo = useAppSelector(selectPosition);
 
   useEffect(() => {
     const fetchAccountBalance = async () => {
@@ -39,13 +39,14 @@ export default function Account(props: { switchMode: (mode: Mode) => void }) {
       const res = await axios.get(url);
       const market = "PBTC-USDC";
       const balance = res.data.balances[market];
-      setAccountInfo({ margin: balance.margin, position: balance.position });
+      dispatch(
+        updatePosition({ margin: balance.margin, position: balance.position })
+      );
     };
     if (account) {
       fetchAccountBalance();
     }
-  }, [account]);
-
+  }, [account, dispatch]);
 
   return (
     <>
