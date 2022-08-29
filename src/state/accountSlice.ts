@@ -47,6 +47,32 @@ interface Position {
   position: number;
 }
 
+export function updateOrders(currentOrders: Order[], updates: Order[]) {
+  const updatedOrders = updates.reduce(
+    (res, update) => {
+      const updatedOrder = res.find(
+        (currentOrder) => currentOrder.hash === update.hash
+      );
+      if (!updatedOrder) {
+        if (update.amountInETH) {
+          res.push(update);
+        }
+        return res;
+      }
+      const newOrders = res.filter((order) => order.hash !== update.hash);
+
+      if (update.filledAmountInETH > 0) {
+        // update size
+        newOrders.push({ ...updatedOrder, filledAmountInETH: update.filledAmountInETH });
+      }
+      return newOrders;
+    },
+    [...currentOrders]
+  );
+
+  return updatedOrders;
+}
+
 export interface AccountRecords {
   market: string;
   fills: Fill[];
@@ -69,6 +95,7 @@ export const accountRecords = createSlice({
       state.fills = state.fills.concat(payload);
     },
     fetchOrders: (state, { payload }) => {
+      state.orders = updateOrders(state.orders, payload);
       state.orders = state.orders.concat(payload);
     },
     removeOrder: (state, { payload }) => {
