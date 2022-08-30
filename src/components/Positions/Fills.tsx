@@ -20,7 +20,7 @@ import {
   FillType,
   Side,
   TakerOrMaker,
-  clearAccountRecords,
+  clearFills,
 } from "../../state/accountSlice";
 
 import {
@@ -93,7 +93,7 @@ export default function Fills(props: FillsProps) {
       sendJsonMessage(subscribeMessage);
     }
 
-    dispatch(clearAccountRecords());
+    dispatch(clearFills());
     if (account) {
       connect("PBTC-USD");
     }

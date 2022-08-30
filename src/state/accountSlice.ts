@@ -63,7 +63,10 @@ export function updateOrders(currentOrders: Order[], updates: Order[]) {
 
       if (update.filledAmountInETH > 0) {
         // update size
-        newOrders.push({ ...updatedOrder, filledAmountInETH: update.filledAmountInETH });
+        newOrders.push({
+          ...updatedOrder,
+          filledAmountInETH: update.filledAmountInETH,
+        });
       }
       return newOrders;
     },
@@ -96,7 +99,7 @@ export const accountRecords = createSlice({
     },
     fetchOrders: (state, { payload }) => {
       state.orders = updateOrders(state.orders, payload);
-      state.orders = state.orders.concat(payload);
+      console.log(state.orders.length);
     },
     removeOrder: (state, { payload }) => {
       state.orders = state.orders.filter((order) => order.hash !== payload);
@@ -104,10 +107,11 @@ export const accountRecords = createSlice({
     updatePosition: (state, { payload }) => {
       state.position = payload;
     },
-    clearAccountRecords: (state) => {
-      state.position = { margin: 0, position: 0 };
-      state.fills = [];
+    clearOrders: (state) => {
       state.orders = [];
+    },
+    clearFills: (state) => {
+      state.fills = [];
     },
   },
 });
@@ -117,7 +121,8 @@ export const {
   fetchOrders,
   removeOrder,
   updatePosition,
-  clearAccountRecords,
+  clearOrders,
+  clearFills,
 } = accountRecords.actions;
 
 export const selectOrders = (state: AppState): Order[] => state.account.orders;

@@ -22,7 +22,7 @@ import {
   removeOrder,
   Status,
   Side,
-  clearAccountRecords,
+  clearOrders,
 } from "../../state/accountSlice";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
@@ -108,8 +108,8 @@ export default function Orders(props: OrdersProps) {
       };
       sendJsonMessage(subscribeMessage);
     }
-    dispatch(clearAccountRecords());
     if (account) {
+      dispatch(clearOrders());
       connect("PBTC-USD");
     }
   }, [sendJsonMessage, account, dispatch]);
